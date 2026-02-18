@@ -11,7 +11,11 @@ const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
-const adminRoutes = require("./routes/adminRoutes");
+const auditRoutes = require("./routes/auditRoutes");
+const auditLogRoutes = require("./routes/auditLogRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+const reportRoutes = require("./routes/reportRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 if (!process.env.MONGO_URI) {
@@ -44,10 +48,15 @@ app.use(limiter);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/admin/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api/audit-logs", auditRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/analytics", analyticsRoutes);
+app.use("/audit-logs", auditLogRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Greencart API is running" });

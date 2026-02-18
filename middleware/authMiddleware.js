@@ -14,9 +14,17 @@ const protect = async (req, res, next) => {
 
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded?.id || (decoded?.tokenType && decoded.tokenType !== "access")) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
     req.user = { id: decoded.id };
     return next();
   } catch (error) {
+    if (error?.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token expired" });
+    }
+
     return res.status(401).json({ message: "Invalid token" });
   }
 };

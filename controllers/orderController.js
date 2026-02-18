@@ -160,8 +160,22 @@ const updateOrderStatus = async (req, res, next) => {
       });
     }
 
+    const previousStatus = order.status;
     order.status = status;
     const updatedOrder = await order.save();
+
+    if (typeof req.logAdminAction === "function") {
+      void req.logAdminAction({
+        action: "order.status_change",
+        entityType: "order",
+        entityId: updatedOrder._id,
+        metadata: {
+          fromStatus: previousStatus,
+          toStatus: updatedOrder.status,
+        },
+      });
+    }
+
     return res.status(200).json(updatedOrder);
   } catch (error) {
     if (error.name === "CastError") {

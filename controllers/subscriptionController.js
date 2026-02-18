@@ -1,5 +1,6 @@
 const Product = require("../models/Product");
 const Subscription = require("../models/Subscription");
+const User = require("../models/User");
 const { processDueSubscriptions } = require("../services/subscriptionProcessor");
 
 const calculateNextDeliveryDate = (startDate, frequency) => {
@@ -113,6 +114,21 @@ const updateSubscriptionStatus = async (req, res, next) => {
 
     subscription.status = status;
     const updatedSubscription = await subscription.save();
+
+    if (typeof req.logAdminAction === "function") {
+      const actor = await User.findById(req.user.id).select("role");
+
+      if (actor?.role === "admin") {
+        void req.logAdminAction({
+          action: status === "paused" ? "subscription.pause" : "subscription.cancel",
+          entityType: "subscription",
+          entityId: updatedSubscription._id,
+          metadata: {
+            status: updatedSubscription.status,
+          },
+        });
+      }
+    }
 
     return res.status(200).json(updatedSubscription);
   } catch (error) {
